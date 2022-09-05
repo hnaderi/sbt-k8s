@@ -16,6 +16,8 @@
 
 package dev.hnaderi.sbtk8s
 
+import dev.hnaderi.k8s.manifest.Utils
+
 import java.io.File
 
 final case class K8SDeployment(

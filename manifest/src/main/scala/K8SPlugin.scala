@@ -16,6 +16,8 @@
 
 package dev.hnaderi.sbtk8s
 
+import dev.hnaderi.k8s.KObject
+import dev.hnaderi.k8s.manifest._
 import sbt.Keys._
 import sbt._
 
@@ -23,7 +25,7 @@ import java.io.PrintWriter
 
 object K8SPlugin extends AutoPlugin {
   object autoImport {
-    val manifestObjects: SettingKey[Seq[K8SObject]] = SettingKey(
+    val manifestObjects: SettingKey[Seq[KObject]] = SettingKey(
       "k8s objects to create"
     )
     val manifestFileName: SettingKey[String] = SettingKey("manifest file name")
@@ -55,17 +57,12 @@ object K8SPlugin extends AutoPlugin {
   )
 
   private def generateManifest(
-      objs: Seq[K8SObject],
+      objs: Seq[KObject],
       target: File,
       fileName: String
-  ) = writeOutput(target, fileName)(manifestFor(objs))
+  ) = writeOutput(target, fileName)(objs.asManifest)
 
-  private def manifestFor(objs: Seq[K8SObject]): String = {
-    val jsons = objs.map(_.buildManifest)
-    Utils.toManifest(jsons: _*)
-  }
-
-  private def printManifest(objs: Seq[K8SObject]) = println(manifestFor(objs))
+  private def printManifest(objs: Seq[KObject]) = println(objs.asManifest)
 
   private def writeOutput(buildTarget: File, outName: String)(
       content: String
