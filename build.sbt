@@ -54,4 +54,12 @@ lazy val core = project
   )
   .dependsOn(manifest, cookbook)
 
-lazy val docs = project.in(file("site")).enablePlugins(TypelevelSitePlugin)
+lazy val docs = project
+  .in(file("site"))
+  .enablePlugins(TypelevelSitePlugin)
+  .settings(
+    tlSiteRelatedProjects := Seq(
+      "scala k8s" -> url("https://github.com/hnaderi/scala-k8s"),
+      "sbt" -> url("https://github.com/sbt/sbt")
+    )
+  )
