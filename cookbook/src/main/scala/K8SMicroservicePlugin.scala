@@ -17,9 +17,7 @@
 package dev.hnaderi.sbtk8s
 package cookbook
 
-import com.typesafe.sbt.packager.Keys._
-import com.typesafe.sbt.packager.docker.DockerPlugin
-import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.Docker
+import dev.hnaderi.k8s
 import sbt.AutoPlugin
 import sbt.Keys._
 import sbt._
@@ -29,8 +27,8 @@ object K8SMicroservicePlugin extends AutoPlugin {
     val namespace: SettingKey[String] = settingKey("namespace")
     val image: SettingKey[String] = settingKey("container image")
 
-    val configs: SettingKey[Map[String, Data]] = settingKey("config names")
-    val secrets: SettingKey[Map[String, Data]] = settingKey("secret names")
+    val configs: SettingKey[Map[String, k8s.Data]] = settingKey("config names")
+    val secrets: SettingKey[Map[String, k8s.Data]] = settingKey("secret names")
     val variables: SettingKey[Map[String, String]] = settingKey(
       "environment variables"
     )
@@ -39,28 +37,27 @@ object K8SMicroservicePlugin extends AutoPlugin {
     val host: SettingKey[Option[String]] = settingKey("host name to expose on")
     val path: SettingKey[Option[String]] = settingKey("http path to expose on")
 
-    val deployment: SettingKey[K8SDeployment] = SettingKey(
+    val deployment: SettingKey[MicroserviceDefinition] = SettingKey(
       "final deployment model"
     )
   }
 
   import autoImport._
+  import K8SPlugin.autoImport.manifestObjects
 
-  lazy val deploymentSettings: Seq[Def.Setting[_]] = Seq(
+  override def trigger = noTrigger
+  override def requires = K8SPlugin
+
+  override val projectSettings = Seq(
     name := name.value,
     namespace := s"k8s-${(name).value}",
-    image := {
-      val reg = (Docker / dockerRepository).value.map(s => s"$s/").getOrElse("")
-      val name = (Docker / dockerAlias).value
-      s"$reg$name"
-    },
     configs := Map.empty,
     secrets := Map.empty,
     variables := Map.empty,
     port := None,
     host := None,
     path := None,
-    deployment := K8SDeployment(
+    deployment := MicroserviceDefinition(
       name = (name).value,
       namespace = (namespace).value,
       image = (image).value,
@@ -70,11 +67,7 @@ object K8SMicroservicePlugin extends AutoPlugin {
       port = (port).value,
       host = (host).value,
       path = (path).value
-    )
+    ),
+    manifestObjects := (deployment).value.build
   )
-
-  override def trigger = noTrigger
-  override def requires = K8SPlugin && DockerPlugin
-
-  override val projectSettings = deploymentSettings
 }
