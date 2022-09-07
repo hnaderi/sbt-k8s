@@ -18,26 +18,42 @@ package dev.hnaderi.sbtk8s
 package cookbook
 
 import dev.hnaderi.k8s
+import dev.hnaderi.k8s.cookbook._
 import sbt.AutoPlugin
 import sbt.Keys._
 import sbt._
 
 object K8SMicroservicePlugin extends AutoPlugin {
   object autoImport {
-    val namespace: SettingKey[String] = settingKey("namespace")
-    val image: SettingKey[String] = settingKey("container image")
+    val microserviceName: SettingKey[String] = settingKey(
+      "name used as deployment, config, secret, and all other resource names. defaults to [project / name]"
+    )
+    val microserviceNamespace: SettingKey[String] = settingKey(
+      "namespace used to deploy resources, defaults to \"default\""
+    )
+    val microserviceImage: SettingKey[String] = settingKey(
+      "container image, will be populated automatically if you have also DockerPlugin from native packager"
+    )
 
-    val configs: SettingKey[Map[String, k8s.Data]] = settingKey("config names")
-    val secrets: SettingKey[Map[String, k8s.Data]] = settingKey("secret names")
-    val variables: SettingKey[Map[String, String]] = settingKey(
+    val microserviceConfigs: SettingKey[Map[String, k8s.Data]] = settingKey(
+      "config data, if any data is provided, will be used in a single `ConfigMap` named like other resources, defaults to Map.empty"
+    )
+    val microserviceSecrets: SettingKey[Map[String, k8s.Data]] = settingKey(
+      "secret data, if any data is provided, will be used in a single `Secret` named like other resources, defaults to Map.empty"
+    )
+    val microserviceVariables: SettingKey[Map[String, String]] = settingKey(
       "environment variables"
     )
 
-    val port: SettingKey[Option[Int]] = settingKey("service port")
-    val host: SettingKey[Option[String]] = settingKey("host name to expose on")
-    val path: SettingKey[Option[String]] = settingKey("http path to expose on")
+    val microserviceEnvironments: SettingKey[Seq[EnvironmentDefinition]] =
+      settingKey(
+        "service environment definitions"
+      )
+    val microserviceServices: SettingKey[Seq[ServiceDefinition]] = settingKey(
+      "service definitions"
+    )
 
-    val deployment: SettingKey[MicroserviceDefinition] = SettingKey(
+    val microserviceDefinition: SettingKey[MicroserviceDefinition] = settingKey(
       "final deployment model"
     )
   }
@@ -49,25 +65,18 @@ object K8SMicroservicePlugin extends AutoPlugin {
   override def requires = K8sManifestPlugin
 
   override val projectSettings = Seq(
-    name := name.value,
-    namespace := s"k8s-${(name).value}",
-    configs := Map.empty,
-    secrets := Map.empty,
-    variables := Map.empty,
-    port := None,
-    host := None,
-    path := None,
-    deployment := MicroserviceDefinition(
-      name = (name).value,
-      namespace = (namespace).value,
-      image = (image).value,
-      configs = (configs).value,
-      secrets = (secrets).value,
-      variables = (variables).value.toMap,
-      port = (port).value,
-      host = (host).value,
-      path = (path).value
+    microserviceName := name.value,
+    microserviceNamespace := "default",
+    microserviceEnvironments := Nil,
+    microserviceServices := Nil,
+    microserviceDefinition := MicroserviceDefinition(
+      name = microserviceName.value,
+      version = version.value,
+      namespace = microserviceNamespace.value,
+      image = microserviceImage.value,
+      environments = microserviceEnvironments.value,
+      services = microserviceServices.value
     ),
-    k8sManifestObjects := (deployment).value.build
+    k8sManifestObjects := microserviceDefinition.value.build
   )
 }

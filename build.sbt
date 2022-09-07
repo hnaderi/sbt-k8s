@@ -30,12 +30,17 @@ lazy val root =
     .aggregate(core, manifest, cookbook, docs)
     .enablePlugins(AutomateHeaderPlugin, NoPublishPlugin)
 
+val scalaK8sVersion = "0.2-f43a09d-SNAPSHOT"
+
 lazy val manifest = project
   .enablePlugins(AutomateHeaderPlugin, SbtPlugin)
   .settings(
     name := "sbt-k8s-manifests",
     pluginCrossBuild / sbtVersion := "1.2.8", // set minimum sbt version
-    libraryDependencies += "dev.hnaderi" %% "scala-k8s-manifests" % "0.1.0"
+    libraryDependencies ++= Seq(
+      "dev.hnaderi" %% "scala-k8s-manifests",
+      "dev.hnaderi" %% "scala-k8s-cookbook"
+    ).map(_ % scalaK8sVersion)
   )
 
 lazy val cookbook = project

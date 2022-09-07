@@ -26,10 +26,10 @@ import sbt._
 object NativePackagerDockerIntegrationPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
   override def requires: Plugins = DockerPlugin && K8SMicroservicePlugin
-  import K8SMicroservicePlugin.autoImport.image
+  import K8SMicroservicePlugin.autoImport.microserviceImage
 
   override def projectSettings: Seq[Setting[_]] = Seq(
-    image := {
+    microserviceImage := {
       val reg =
         (Docker / dockerRepository).value.map(s => s"$s/").getOrElse("")
       val name = (Docker / dockerAlias).value
