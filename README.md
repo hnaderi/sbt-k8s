@@ -21,7 +21,7 @@ This sbt plugin is available for sbt 1.x
 To use the latest version of plugins, include the following in your `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("dev.hnaderi" % "sbt-k8s-manifest" % "@VERSION@") // just manifest generation and objects
+addSbtPlugin("dev.hnaderi" % "sbt-k8s-manifests" % "@VERSION@") // just manifest generation and objects
 ```
 
 and your project in `build.sbt`
