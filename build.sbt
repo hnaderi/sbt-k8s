@@ -37,22 +37,20 @@ lazy val manifest = project
   .settings(
     name := "sbt-k8s-manifests",
     pluginCrossBuild / sbtVersion := "1.2.8", // set minimum sbt version
-    libraryDependencies ++= Seq(
-      "dev.hnaderi" %% "scala-k8s-manifests",
-      "dev.hnaderi" %% "scala-k8s-cookbook"
-    ).map(_ % scalaK8sVersion)
+    libraryDependencies += "dev.hnaderi" %% "scala-k8s-manifests" % scalaK8sVersion
   )
 
 lazy val cookbook = project
-  .enablePlugins(AutomateHeaderPlugin, SbtPlugin, NoPublishPlugin)
+  .enablePlugins(AutomateHeaderPlugin, SbtPlugin)
   .settings(
     name := "sbt-k8s-cookbook",
-    pluginCrossBuild / sbtVersion := "1.2.8" // set minimum sbt version
+    pluginCrossBuild / sbtVersion := "1.2.8", // set minimum sbt version
+    libraryDependencies += "dev.hnaderi" %% "scala-k8s-cookbook" % scalaK8sVersion
   )
   .dependsOn(manifest)
 
 lazy val core = project
-  .enablePlugins(AutomateHeaderPlugin, SbtPlugin, NoPublishPlugin)
+  .enablePlugins(AutomateHeaderPlugin, SbtPlugin)
   .settings(
     name := "sbt-k8s",
     pluginCrossBuild / sbtVersion := "1.2.8" // set minimum sbt version

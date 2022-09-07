@@ -32,7 +32,7 @@ object K8sManifestPlugin extends AutoPlugin {
       "manifest file name"
     )
 
-    val ks8ManifestPrint = taskKey[Unit]("prints kubernetes manifests")
+    val k8sManifestPrint = taskKey[Unit]("prints kubernetes manifests")
     val k8sManifestGen = taskKey[Unit]("generate kubernetes manifest")
   }
 
@@ -45,7 +45,7 @@ object K8sManifestPlugin extends AutoPlugin {
     k8sManifestObjects := Nil,
     k8sManifestGen / target := (ThisProject / target).value / "k8s",
     k8sManifestFileName := "manifest.yml",
-    ks8ManifestPrint := {
+    k8sManifestPrint := {
       println(s"printing manifest for ${name.value}")
       printManifest(k8sManifestObjects.value)
     },
