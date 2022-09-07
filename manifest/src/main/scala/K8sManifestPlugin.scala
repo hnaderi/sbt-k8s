@@ -23,15 +23,17 @@ import sbt._
 
 import java.io.PrintWriter
 
-object K8SPlugin extends AutoPlugin {
+object K8sManifestPlugin extends AutoPlugin {
   object autoImport {
-    val manifestObjects: SettingKey[Seq[KObject]] = SettingKey(
+    val k8sManifestObjects: SettingKey[Seq[KObject]] = SettingKey(
       "k8s objects to create"
     )
-    val manifestFileName: SettingKey[String] = SettingKey("manifest file name")
+    val k8sManifestFileName: SettingKey[String] = SettingKey(
+      "manifest file name"
+    )
 
-    val manifestPrint = taskKey[Unit]("prints kubernetes manifests")
-    val manifestGen = taskKey[Unit]("generate kubernetes manifest")
+    val ks8ManifestPrint = taskKey[Unit]("prints kubernetes manifests")
+    val k8sManifestGen = taskKey[Unit]("generate kubernetes manifest")
   }
 
   import autoImport._
@@ -40,18 +42,18 @@ object K8SPlugin extends AutoPlugin {
   override def requires = sbt.plugins.JvmPlugin
 
   override val projectSettings = Seq(
-    manifestObjects := Nil,
-    manifestGen / target := (ThisProject / target).value / "k8s",
-    manifestFileName := "manifest.yml",
-    manifestPrint := {
-      println(s"staging files for ${name.value}")
-      printManifest(manifestObjects.value)
+    k8sManifestObjects := Nil,
+    k8sManifestGen / target := (ThisProject / target).value / "k8s",
+    k8sManifestFileName := "manifest.yml",
+    ks8ManifestPrint := {
+      println(s"printing manifest for ${name.value}")
+      printManifest(k8sManifestObjects.value)
     },
-    manifestGen := {
+    k8sManifestGen := {
       generateManifest(
-        manifestObjects.value,
-        (manifestGen / target).value,
-        manifestFileName.value
+        k8sManifestObjects.value,
+        (k8sManifestGen / target).value,
+        k8sManifestFileName.value
       )
     }
   )

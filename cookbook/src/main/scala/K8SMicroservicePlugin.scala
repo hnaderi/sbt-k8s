@@ -43,10 +43,10 @@ object K8SMicroservicePlugin extends AutoPlugin {
   }
 
   import autoImport._
-  import K8SPlugin.autoImport.manifestObjects
+  import K8sManifestPlugin.autoImport.k8sManifestObjects
 
   override def trigger = noTrigger
-  override def requires = K8SPlugin
+  override def requires = K8sManifestPlugin
 
   override val projectSettings = Seq(
     name := name.value,
@@ -68,6 +68,6 @@ object K8SMicroservicePlugin extends AutoPlugin {
       host = (host).value,
       path = (path).value
     ),
-    manifestObjects := (deployment).value.build
+    k8sManifestObjects := (deployment).value.build
   )
 }

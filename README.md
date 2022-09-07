@@ -29,11 +29,11 @@ and your project in `build.sbt`
 ```scala
 lazy val service = project
   .settings(
-    manifestObjects := Seq(
+    k8sManifestObjects := Seq(
       // kubernetes objects from scala-k8s
     )
   )
-  .enablePlugin(K8SPlugin)
+  .enablePlugin(K8sManifestPlugin)
 ```
 
-now you have `manifestGen` and `manifestPrint` tasks that will generate or print manifest for defined objects.
+now you have `k8sManifestGen` and `k8sManifestPrint` tasks that will generate or print manifest for defined objects.
