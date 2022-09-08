@@ -82,6 +82,11 @@
 
         <ul class="nav-list">
           <li class="level1"><a href="#usage">Usage</a></li>
+          <li class="level2"><a href="#if-you-have-native-packager-docker-plugin-all-settings-are-optional">If you have native packager docker plugin. (all settings are optional)</a></li>
+          <li class="level2"><a href="#if-you-don-t-want-to-use-native-packager-microserviceimage-is-required">If you don&#39;t want to use native packager (microserviceImage is required)</a></li>
+          <li class="level2"><a href="#if-you-want-to-create-completely-custom-manifests-you-are-on-your-own-create-any-kubernetes-object-you-want">If you want to create completely custom manifests (you are on your own, create any kubernetes object you want)</a></li>
+          <li class="level1"><a href="#how-to-run">How to run</a></li>
+          <li class="level1"><a href="#configure">Configure</a></li>
         </ul>
 
         <p class="footer"></p>
@@ -94,8 +99,40 @@
         <h3 id="usage" class="section">Usage<a class="anchor-link right" href="#usage"><i class="icofont-laika">&#xef71;</i></a></h3>
         <p>This sbt plugin is available for sbt 1.x</p>
         <p>To use the latest version of plugins, include the following in your <code>project/plugins.sbt</code>:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;dev.hnaderi&quot;</span><span> % </span><span class="string-literal">&quot;sbt-k8s-manifests&quot;</span><span> % </span><span class="string-literal">&quot;0.0.1&quot;</span><span>) </span><span class="comment">// just manifest generation and objects</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;dev.hnaderi&quot;</span><span> % </span><span class="string-literal">&quot;sbt-k8s&quot;</span><span> % </span><span class="string-literal">&quot;0.0.1&quot;</span><span>) </span><span class="comment">// everything
+</span><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;dev.hnaderi&quot;</span><span> % </span><span class="string-literal">&quot;sbt-k8s-manifests&quot;</span><span> % </span><span class="string-literal">&quot;0.0.1&quot;</span><span>) </span><span class="comment">// just manifest generation and objects
+</span><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;dev.hnaderi&quot;</span><span> % </span><span class="string-literal">&quot;sbt-k8s-cookbook&quot;</span><span> % </span><span class="string-literal">&quot;0.0.1&quot;</span><span>) </span><span class="comment">// easy to use recipes (RECOMMENDED)</span></code></pre>
         <p>and your project in <code>build.sbt</code></p>
+        
+        <h4 id="if-you-have-native-packager-docker-plugin-all-settings-are-optional" class="section">If you have native packager docker plugin. (all settings are optional)<a class="anchor-link right" href="#if-you-have-native-packager-docker-plugin-all-settings-are-optional"><i class="icofont-laika">&#xef71;</i></a></h4>
+        <pre><code class="nohighlight"><span class="keyword">lazy</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">service</span><span> = </span><span class="identifier">project</span><span>
+  .</span><span class="identifier">settings</span><span>(
+    </span><span class="identifier">microserviceResources</span><span> := </span><span class="type-name">ResourceRequirements</span><span>(
+      </span><span class="identifier">limits</span><span> = </span><span class="type-name">Map</span><span>(</span><span class="string-literal">&quot;cpu&quot;</span><span> -&gt; </span><span class="type-name">Quantity</span><span>(</span><span class="string-literal">&quot;500m&quot;</span><span>), </span><span class="string-literal">&quot;memory&quot;</span><span> -&gt; </span><span class="type-name">Quantity</span><span>(</span><span class="string-literal">&quot;512Mi&quot;</span><span>)),
+      </span><span class="identifier">requests</span><span> = </span><span class="type-name">Map</span><span>(</span><span class="string-literal">&quot;cpu&quot;</span><span> -&gt; </span><span class="type-name">Quantity</span><span>(</span><span class="string-literal">&quot;250m&quot;</span><span>), </span><span class="string-literal">&quot;memory&quot;</span><span> -&gt; </span><span class="type-name">Quantity</span><span>(</span><span class="string-literal">&quot;128Mi&quot;</span><span>))
+    ),
+    </span><span class="identifier">microserviceEnvironments</span><span> := </span><span class="type-name">Seq</span><span>(
+      </span><span class="type-name">Variable</span><span>(</span><span class="string-literal">&quot;SERVICE_NAME&quot;</span><span>, </span><span class="identifier">service</span><span>),
+      </span><span class="type-name">ExternalSecretVariable</span><span>(</span><span class="string-literal">&quot;POSTGRES_PASSWORD&quot;</span><span>, </span><span class="string-literal">&quot;username&quot;</span><span>, </span><span class="string-literal">&quot;pg-credentials&quot;</span><span>),
+      </span><span class="type-name">ConfigFile</span><span>(</span><span class="string-literal">&quot;service-config&quot;</span><span>, </span><span class="type-name">Map</span><span>(
+          </span><span class="string-literal">&quot;app.conf&quot;</span><span> -&gt; </span><span class="identifier">file</span><span>(</span><span class="string-literal">s&quot;deployments/configs/</span><span class="substitution">$service</span><span class="string-literal">.conf&quot;</span><span>),
+          </span><span class="string-literal">&quot;base.conf&quot;</span><span> -&gt; </span><span class="identifier">file</span><span>(</span><span class="string-literal">s&quot;deployments/configs/base.conf&quot;</span><span>)
+        ),
+        </span><span class="string-literal">&quot;/mnt/config&quot;</span><span>
+      )
+    ),
+    </span><span class="identifier">microserviceServices</span><span> := </span><span class="type-name">Seq</span><span>(</span><span class="type-name">ServiceDefinition</span><span>(</span><span class="string-literal">&quot;ws&quot;</span><span>, </span><span class="number-literal">8080</span><span>, </span><span class="number-literal">80</span><span>))
+  )
+  .</span><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">DockerPlugin</span><span>, </span><span class="type-name">K8SMicroservicePlugin</span><span>)</span></code></pre>
+        
+        <h4 id="if-you-don-t-want-to-use-native-packager-microserviceimage-is-required" class="section">If you don&#39;t want to use native packager (microserviceImage is required)<a class="anchor-link right" href="#if-you-don-t-want-to-use-native-packager-microserviceimage-is-required"><i class="icofont-laika">&#xef71;</i></a></h4>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">lazy</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">service</span><span> = </span><span class="identifier">project</span><span>
+  .</span><span class="identifier">settings</span><span>(
+    </span><span class="identifier">microserviceImage</span><span> := </span><span class="string-literal">&quot;your.registry/your-image:version&quot;</span><span>
+  )
+  .</span><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">K8SMicroservicePlugin</span><span>)</span></code></pre>
+        
+        <h4 id="if-you-want-to-create-completely-custom-manifests-you-are-on-your-own-create-any-kubernetes-object-you-want" class="section">If you want to create completely custom manifests (you are on your own, create any kubernetes object you want)<a class="anchor-link right" href="#if-you-want-to-create-completely-custom-manifests-you-are-on-your-own-create-any-kubernetes-object-you-want"><i class="icofont-laika">&#xef71;</i></a></h4>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">lazy</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">service</span><span> = </span><span class="identifier">project</span><span>
   .</span><span class="identifier">settings</span><span>(
     </span><span class="identifier">k8sManifestObjects</span><span> := </span><span class="type-name">Seq</span><span>(
@@ -103,7 +140,13 @@
 </span><span>    )
   )
   .</span><span class="identifier">enablePlugin</span><span>(</span><span class="type-name">K8sManifestPlugin</span><span>)</span></code></pre>
-        <p>now you have <code>k8sManifestGen</code> and <code>k8sManifestPrint</code> tasks that will generate or print manifest for defined objects.</p>
+        
+        <h3 id="how-to-run" class="section">How to run<a class="anchor-link right" href="#how-to-run"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>now you have <code>k8sManifestGen</code> and <code>k8sManifestPrint</code> tasks that will generate or print manifest for defined objects.<br>
+        default generation will write manifest in <code>target/k8s/manifest.yml</code></p>
+        
+        <h3 id="configure" class="section">Configure<a class="anchor-link right" href="#configure"><i class="icofont-laika">&#xef71;</i></a></h3>
+        <p>You can configure everything using settings. current settings are prefixed by <code>k8sManifest</code> or <code>microservice</code></p>
 
         <hr style="margin-top: 30px"/>
         <footer style="font-size: 90%; text-align: center">
