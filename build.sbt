@@ -1,4 +1,5 @@
 import org.typelevel.sbt.gha.WorkflowStep.Sbt
+import org.typelevel.sbt.TypelevelCiReleasePlugin
 
 ThisBuild / tlBaseVersion := "0.0"
 
@@ -16,7 +17,6 @@ ThisBuild / tlSonatypeUseLegacyHost := false
 ThisBuild / tlSitePublishBranch := Some("main")
 ThisBuild / scalaVersion := scala212
 ThisBuild / githubWorkflowBuildSbtStepPreamble := Nil
-ThisBuild / tlCiMimaBinaryIssueCheck := false
 ThisBuild / githubWorkflowBuild ~= {
   _.map {
     case Sbt(commands, id, Some("Test"), cond, env, params) =>
@@ -63,7 +63,8 @@ lazy val core = project
   .enablePlugins(AutomateHeaderPlugin, SbtPlugin)
   .settings(
     name := "sbt-k8s",
-    pluginCrossBuild / sbtVersion := "1.2.8" // set minimum sbt version
+    pluginCrossBuild / sbtVersion := "1.2.8", // set minimum sbt version
+    mimaReportBinaryIssues := {}
   )
   .dependsOn(manifest, cookbook)
 
