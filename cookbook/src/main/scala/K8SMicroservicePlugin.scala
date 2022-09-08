@@ -57,7 +57,7 @@ object K8SMicroservicePlugin extends AutoPlugin {
       "container working dir"
     )
 
-    val microserviceEnvironments: SettingKey[Seq[EnvironmentDefinition]] =
+    val microserviceEnvironments: SettingKey[Seq[Environment]] =
       settingKey(
         "service environment definitions"
       )

@@ -28,6 +28,8 @@ import munit.Location
 import implicits._
 
 class MicroserviceDefinitionSuite extends FunSuite {
+  type Manifest = Seq[KObject]
+
   val baseDef = MicroserviceDefinition(
     name = "example",
     version = "0.0.1",
@@ -39,12 +41,11 @@ class MicroserviceDefinitionSuite extends FunSuite {
     val manifest = defs.build
 
     assertEquals(manifest.size, 1)
-    assert(manifest.head.isInstanceOf[Deployment])
-    val deployment = manifest.head.asInstanceOf[Deployment]
-    assertCommonMeta(deployment.metadata, "example", "0.0.1")
+    val deployment = getDeployment(manifest)
+    assertCommonMeta(deployment.metadata, defs)
     val spec = assertExists(deployment.spec)
     import spec.template
-    assertCommonMeta(template.metadata, "example", "0.0.1")
+    assertCommonMeta(template.metadata, defs)
     assertEquals(
       spec.selector,
       LabelSelector(matchLabels = Map(Labels.name("example")))
@@ -63,26 +64,68 @@ class MicroserviceDefinitionSuite extends FunSuite {
     val defs = baseDef.copy(services = Nil)
     val manifest = defs.build
 
-    assert(
-      manifest.forall(r =>
-        !(r.isInstanceOf[Service] && r.isInstanceOf[Ingress])
-      )
-    )
+    assertNoService(manifest)
+    assertNoIngress(manifest)
+  }
+
+  test("Must not create ingress when no public service is defined") {
+    val defs = baseDef.copy(services = Seq(ServiceDefinition("ws", 8080)))
+    val manifest = defs.build
+
+    assertNoIngress(manifest)
+    val srv = getService(manifest)
+    assertCommonMeta(srv.metadata, defs)
+    val spec = assertExists(srv.spec)
   }
 
   private def assertExists[T](opt: Option[T])(implicit loc: Location) = {
-    assert(opt.isDefined)
+    assert(opt.isDefined, "Expected to exist!")
     opt.get
   }
 
   private def assertCommonMeta(
       meta: Option[ObjectMeta],
-      name: String,
-      version: String
+      defs: MicroserviceDefinition
   )(implicit loc: Location) = {
     val m = assertExists(meta)
     val labels = assertExists(m.labels).toSeq
-    assert(labels.contains(Labels.name(name)))
-    assert(labels.contains(Labels.version(version)))
+    assert(labels.contains(Labels.name(defs.name)))
+    assert(labels.contains(Labels.version(defs.version)))
+  }
+
+  private def getDeployment(
+      manifest: Manifest
+  )(implicit loc: Location): Deployment = {
+    val dep = manifest.collect { case d: Deployment => d }
+    assert(dep.isDefined, "There is no deployment!")
+    dep.head
+  }
+  private def getService(
+      manifest: Manifest
+  )(implicit loc: Location): Service = {
+    val dep = manifest.collect { case d: Service => d }
+    assert(dep.isDefined, "There is no service!")
+    dep.head
+  }
+  private def getIngress(
+      manifest: Manifest
+  )(implicit loc: Location): Ingress = {
+    val dep = manifest.collect { case d: Ingress => d }
+    assert(dep.isDefined, "There is no ingress!")
+    dep.head
+  }
+  private def assertNoService(
+      manifest: Manifest
+  )(implicit loc: Location): Unit = {
+    val h = manifest.collectFirst { case d: Service => d }
+    assertEquals(h, None, "There is a service!")
+
+  }
+  private def assertNoIngress(
+      manifest: Manifest
+  )(implicit loc: Location): Unit = {
+    val h = manifest.collectFirst { case d: Ingress => d }
+    assertEquals(h, None, "There is an ingress!")
+
   }
 }

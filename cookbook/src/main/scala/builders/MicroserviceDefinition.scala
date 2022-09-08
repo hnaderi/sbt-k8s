@@ -20,10 +20,12 @@ import dev.hnaderi.k8s._
 import dev.hnaderi.k8s.implicits._
 import io.k8s.api.apps.v1.Deployment
 import io.k8s.api.apps.v1.DeploymentSpec
+import io.k8s.api.core.v1.ConfigMap
 import io.k8s.api.core.v1.Container
 import io.k8s.api.core.v1.LocalObjectReference
 import io.k8s.api.core.v1.PodSpec
 import io.k8s.api.core.v1.PodTemplateSpec
+import io.k8s.api.core.v1.Secret
 import io.k8s.api.core.v1.Service
 import io.k8s.api.core.v1.ServiceSpec
 import io.k8s.api.networking.v1.Ingress
@@ -44,9 +46,9 @@ final case class MicroserviceDefinition(
     resources: Option[io.k8s.api.core.v1.ResourceRequirements] = None,
     args: Option[Seq[String]] = None,
     workingDir: Option[String] = None,
-    environments: Seq[EnvironmentDefinition] = Nil,
-    services: Seq[ServiceDefinition] = Nil
-) {
+    environments: Seq[Environment] = Nil,
+    services: Seq[ServiceBuilder] = Nil
+) extends Recipe {
   private implicit class SeqOps[A](s: Seq[A]) {
     def toNonEmpty: Option[Seq[A]] = if (s.isEmpty) None else Some(s)
   }
@@ -63,34 +65,36 @@ final case class MicroserviceDefinition(
       ) ++ commonLabels
     )
 
-  private def service: List[Service] =
-    services.headOption.fold(List.empty[Service])(_ =>
-      List(
+  private def service: Option[Service] =
+    services
+      .map(_.servicePort)
+      .toNonEmpty
+      .map(ports =>
         Service(
           metadata = metadata,
           spec = ServiceSpec(
             selector = Map(Labels.name(name)),
-            ports = services.map(_.servicePort)
+            ports = ports
           )
         )
       )
-    )
 
-  private def ingress: List[Ingress] =
-    services.headOption.fold(List.empty[Ingress])(_ =>
-      List(
+  private def ingress: Option[Ingress] =
+    services
+      .flatMap(_.ingressRule)
+      .toNonEmpty
+      .map(rules =>
         Ingress(
           metadata = metadata,
-          spec = IngressSpec(rules = services.flatMap(_.ingressRule))
+          spec = IngressSpec(rules = rules)
         )
       )
-    )
 
-  private def configObject = environments
+  private def configObject: List[ConfigMap] = environments
     .flatMap(_.configMap)
     .map(_.mapMetadata(_.addLabels(commonLabels: _*)))
     .toList
-  private def secretObject = environments
+  private def secretObject: List[Secret] = environments
     .flatMap(_.secret)
     .map(_.mapMetadata(_.addLabels(commonLabels: _*)))
     .toList
@@ -108,8 +112,8 @@ final case class MicroserviceDefinition(
                 name = name,
                 image = image,
                 ports = services.map(_.containerPort).toNonEmpty,
-                env = environments.flatMap(_.env).toNonEmpty,
-                volumeMounts = environments.flatMap(_.volMount).toNonEmpty,
+                env = environments.flatMap(_.envVar).toNonEmpty,
+                volumeMounts = environments.flatMap(_.volumeMount).toNonEmpty,
                 startupProbe = startupProbe,
                 readinessProbe = readinessProbe,
                 livenessProbe = livenessProbe,
@@ -120,14 +124,19 @@ final case class MicroserviceDefinition(
             ),
             imagePullSecrets =
               imagePullSecrets.map(s => LocalObjectReference(s)).toNonEmpty,
-            volumes = environments.flatMap(_.vol).toNonEmpty
+            volumes = environments.flatMap(_.volume).toNonEmpty
           )
         )
       )
     )
   )
 
-  def build: Seq[KObject] =
-    service ::: ingress ::: configObject ::: secretObject ::: deployment
+  def build: Seq[KObject] = List(
+    service.toList,
+    ingress.toList,
+    configObject,
+    secretObject,
+    deployment
+  ).flatten
 
 }

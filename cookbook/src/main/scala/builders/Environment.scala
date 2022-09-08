@@ -31,17 +31,18 @@ import io.k8s.api.core.v1.Volume
 import io.k8s.api.core.v1.VolumeMount
 import io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
 
-abstract class EnvironmentDefinition extends Serializable with Product {
+abstract class Environment extends Serializable with Product {
   def configMap: Option[ConfigMap] = None
   def secret: Option[Secret] = None
-  def env: Option[EnvVar] = None
-  def volMount: Option[VolumeMount] = None
-  def vol: Option[Volume] = None
+  def envVar: Option[EnvVar] = None
+  def volumeMount: Option[VolumeMount] = None
+  def volume: Option[Volume] = None
 }
-object EnvironmentDefinition {
-  final case class Variable(name: String, value: String)
-      extends EnvironmentDefinition {
-    override def env: Option[EnvVar] = Some(EnvVar(name = name, value = value))
+object Environment {
+  final case class Variable(name: String, value: String) extends Environment {
+    override def envVar: Option[EnvVar] = Some(
+      EnvVar(name = name, value = value)
+    )
   }
 
   final case class ConfigVariable(
@@ -50,7 +51,7 @@ object EnvironmentDefinition {
       key: String = "config",
       configMapName: Option[String] = None,
       optional: Option[Boolean] = None
-  ) extends EnvironmentDefinition {
+  ) extends Environment {
     val resourceName = configMapName.getOrElse(name)
 
     override def configMap: Option[ConfigMap] = Some(
@@ -60,7 +61,7 @@ object EnvironmentDefinition {
       )
     )
 
-    override def env: Option[EnvVar] = Some(
+    override def envVar: Option[EnvVar] = Some(
       EnvVar(
         name = name,
         valueFrom = EnvVarSource(
@@ -79,7 +80,7 @@ object EnvironmentDefinition {
       key: String = "config",
       secretName: Option[String] = None,
       optional: Option[Boolean] = None
-  ) extends EnvironmentDefinition {
+  ) extends Environment {
     val resourceName = secretName.getOrElse(name)
 
     override def secret: Option[Secret] = Some(
@@ -89,7 +90,7 @@ object EnvironmentDefinition {
       )
     )
 
-    override def env: Option[EnvVar] = Some(
+    override def envVar: Option[EnvVar] = Some(
       EnvVar(
         name = name,
         valueFrom = EnvVarSource(
@@ -106,7 +107,7 @@ object EnvironmentDefinition {
       name: String,
       data: Map[String, Data],
       mountPath: String
-  ) extends EnvironmentDefinition {
+  ) extends Environment {
     override def configMap: Option[ConfigMap] = Some(
       ConfigMap(
         metadata = ObjectMeta(name = name),
@@ -114,14 +115,14 @@ object EnvironmentDefinition {
       )
     )
 
-    override def volMount: Option[VolumeMount] = Some(
+    override def volumeMount: Option[VolumeMount] = Some(
       VolumeMount(
         name = name,
         mountPath = mountPath
       )
     )
 
-    override def vol: Option[Volume] = Some(
+    override def volume: Option[Volume] = Some(
       Volume(name = name, configMap = ConfigMapVolumeSource(name = name))
     )
   }
@@ -130,7 +131,7 @@ object EnvironmentDefinition {
       name: String,
       data: Map[String, Data],
       mountPath: String
-  ) extends EnvironmentDefinition {
+  ) extends Environment {
     override def secret: Option[Secret] = Some(
       Secret(
         metadata = ObjectMeta(name = name),
@@ -138,41 +139,41 @@ object EnvironmentDefinition {
       )
     )
 
-    override def volMount: Option[VolumeMount] = Some(
+    override def volumeMount: Option[VolumeMount] = Some(
       VolumeMount(
         name = name,
         mountPath = mountPath
       )
     )
 
-    override def vol: Option[Volume] = Some(
+    override def volume: Option[Volume] = Some(
       Volume(name = name, secret = SecretVolumeSource(secretName = name))
     )
   }
 
   final case class ExternalConfigFile(name: String, mountPath: String)
-      extends EnvironmentDefinition {
-    override def volMount: Option[VolumeMount] = Some(
+      extends Environment {
+    override def volumeMount: Option[VolumeMount] = Some(
       VolumeMount(
         name = name,
         mountPath = mountPath
       )
     )
 
-    override def vol: Option[Volume] = Some(
+    override def volume: Option[Volume] = Some(
       Volume(name = name, configMap = ConfigMapVolumeSource(name = name))
     )
   }
   final case class ExternalSecretFile(name: String, mountPath: String)
-      extends EnvironmentDefinition {
-    override def volMount: Option[VolumeMount] = Some(
+      extends Environment {
+    override def volumeMount: Option[VolumeMount] = Some(
       VolumeMount(
         name = name,
         mountPath = mountPath
       )
     )
 
-    override def vol: Option[Volume] = Some(
+    override def volume: Option[Volume] = Some(
       Volume(name = name, secret = SecretVolumeSource(secretName = name))
     )
   }
@@ -181,8 +182,8 @@ object EnvironmentDefinition {
       name: String,
       key: String,
       target: String
-  ) extends EnvironmentDefinition {
-    override def env: Option[EnvVar] = Some(
+  ) extends Environment {
+    override def envVar: Option[EnvVar] = Some(
       EnvVar(
         name = name,
         valueFrom = EnvVarSource(configMapKeyRef =
@@ -191,7 +192,7 @@ object EnvironmentDefinition {
       )
     )
 
-    override def vol: Option[Volume] = Some(
+    override def volume: Option[Volume] = Some(
       Volume(name = name, configMap = ConfigMapVolumeSource(name = name))
     )
   }
@@ -200,8 +201,8 @@ object EnvironmentDefinition {
       name: String,
       key: String,
       target: String
-  ) extends EnvironmentDefinition {
-    override def env: Option[EnvVar] = Some(
+  ) extends Environment {
+    override def envVar: Option[EnvVar] = Some(
       EnvVar(
         name = name,
         valueFrom =
@@ -209,7 +210,7 @@ object EnvironmentDefinition {
       )
     )
 
-    override def vol: Option[Volume] = Some(
+    override def volume: Option[Volume] = Some(
       Volume(name = name, secret = SecretVolumeSource(secretName = name))
     )
   }

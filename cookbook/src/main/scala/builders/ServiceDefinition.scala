@@ -26,13 +26,19 @@ import io.k8s.api.networking.v1.IngressRule
 import io.k8s.api.networking.v1.IngressServiceBackend
 import io.k8s.apimachinery.pkg.util.intstr.IntOrString
 
+trait ServiceBuilder {
+  def containerPort: ContainerPort
+  def servicePort: ServicePort
+  def ingressRule: Option[IngressRule]
+}
+
 final case class ServiceDefinition(
     name: String,
     port: Int,
     targetPort: Option[Int] = None,
     protocol: Option[String] = None,
     public: Option[PublicServiceDefinition] = None
-) {
+) extends ServiceBuilder {
   def containerPort: ContainerPort =
     ContainerPort(containerPort = port, name = name, protocol = protocol)
   def servicePort: ServicePort = ServicePort(
