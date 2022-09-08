@@ -23,10 +23,10 @@ lazy val service = project
       requests = Map("cpu" -> Quantity("250m"), "memory" -> Quantity("128Mi"))
     ),
     microserviceEnvironments := Seq(
-      Variable("SERVICE_NAME", service),
-      ExternalSecretVariable("POSTGRES_PASSWORD", "username", "pg-credentials"),
+      Variable("SERVICE_NAME", "example"),
+      ExternalSecretVariable("POSTGRES_PASSWORD", "password", "pg-credentials"),
       ConfigFile("service-config", Map(
-          "app.conf" -> file(s"deployments/configs/$service.conf"),
+          "app.conf" -> file(s"deployments/configs/service.conf"),
           "base.conf" -> file(s"deployments/configs/base.conf")
         ),
         "/mnt/config"
