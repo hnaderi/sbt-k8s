@@ -67,7 +67,8 @@ object Environment {
         valueFrom = EnvVarSource(
           configMapKeyRef = ConfigMapKeySelector(
             key = key,
-            name = resourceName
+            name = resourceName,
+            optional = optional
           )
         )
       )
@@ -96,7 +97,8 @@ object Environment {
         valueFrom = EnvVarSource(
           secretKeyRef = SecretKeySelector(
             key = key,
-            name = resourceName
+            name = resourceName,
+            optional = optional
           )
         )
       )
@@ -164,6 +166,7 @@ object Environment {
       Volume(name = name, configMap = ConfigMapVolumeSource(name = name))
     )
   }
+
   final case class ExternalSecretFile(name: String, mountPath: String)
       extends Environment {
     override def volumeMount: Option[VolumeMount] = Some(
@@ -181,37 +184,32 @@ object Environment {
   final case class ExternalConfigVariable(
       name: String,
       key: String,
-      target: String
+      target: String,
+      optional: Option[Boolean] = None
   ) extends Environment {
     override def envVar: Option[EnvVar] = Some(
       EnvVar(
         name = name,
         valueFrom = EnvVarSource(configMapKeyRef =
-          ConfigMapKeySelector(key = key, name = name)
+          ConfigMapKeySelector(key = key, name = name, optional = optional)
         )
       )
-    )
-
-    override def volume: Option[Volume] = Some(
-      Volume(name = name, configMap = ConfigMapVolumeSource(name = name))
     )
   }
 
   final case class ExternalSecretVariable(
       name: String,
       key: String,
-      target: String
+      target: String,
+      optional: Option[Boolean] = None
   ) extends Environment {
     override def envVar: Option[EnvVar] = Some(
       EnvVar(
         name = name,
-        valueFrom =
-          EnvVarSource(secretKeyRef = SecretKeySelector(key = key, name = name))
+        valueFrom = EnvVarSource(secretKeyRef =
+          SecretKeySelector(key = key, name = name, optional = optional)
+        )
       )
-    )
-
-    override def volume: Option[Volume] = Some(
-      Volume(name = name, secret = SecretVolumeSource(secretName = name))
     )
   }
 

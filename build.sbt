@@ -49,7 +49,8 @@ lazy val cookbook = project
     name := "sbt-k8s-cookbook",
     pluginCrossBuild / sbtVersion := "1.2.8", // set minimum sbt version
     libraryDependencies ++= Seq(
-      "org.scalameta" %% "munit" % munitVersion % Test
+      "org.scalameta" %% "munit" % munitVersion % Test,
+      "org.scalameta" %% "munit-scalacheck" % munitVersion % Test
     )
   )
   .dependsOn(manifest)
