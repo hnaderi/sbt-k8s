@@ -23,6 +23,8 @@ ThisBuild / githubWorkflowBuild ~= {
     case other => other
   }
 }
+ThisBuild / resolvers +=
+  "Sonatype OSS Snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots"
 
 lazy val root =
   project
@@ -30,7 +32,8 @@ lazy val root =
     .aggregate(core, manifest, cookbook, docs)
     .enablePlugins(AutomateHeaderPlugin, NoPublishPlugin)
 
-val scalaK8sVersion = "0.2-f43a09d-SNAPSHOT"
+val scalaK8sVersion = "0.2-972225d-SNAPSHOT"
+val munitVersion = "0.7.29"
 
 lazy val manifest = project
   .enablePlugins(AutomateHeaderPlugin, SbtPlugin)
@@ -45,7 +48,9 @@ lazy val cookbook = project
   .settings(
     name := "sbt-k8s-cookbook",
     pluginCrossBuild / sbtVersion := "1.2.8", // set minimum sbt version
-    libraryDependencies += "dev.hnaderi" %% "scala-k8s-cookbook" % scalaK8sVersion
+    libraryDependencies ++= Seq(
+      "org.scalameta" %% "munit" % munitVersion % Test
+    )
   )
   .dependsOn(manifest)
 

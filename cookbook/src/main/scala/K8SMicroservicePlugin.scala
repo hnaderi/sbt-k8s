@@ -15,10 +15,9 @@
  */
 
 package dev.hnaderi.sbtk8s
-package cookbook
 
-import dev.hnaderi.k8s
-import dev.hnaderi.k8s.cookbook._
+import _root_.io.k8s.api.core.v1.Probe
+import _root_.io.k8s.api.core.v1.ResourceRequirements
 import sbt.AutoPlugin
 import sbt.Keys._
 import sbt._
@@ -28,21 +27,34 @@ object K8SMicroservicePlugin extends AutoPlugin {
     val microserviceName: SettingKey[String] = settingKey(
       "name used as deployment, config, secret, and all other resource names. defaults to [project / name]"
     )
-    val microserviceNamespace: SettingKey[String] = settingKey(
+    val microserviceNamespace: SettingKey[Option[String]] = settingKey(
       "namespace used to deploy resources, defaults to \"default\""
     )
     val microserviceImage: SettingKey[String] = settingKey(
       "container image, will be populated automatically if you have also DockerPlugin from native packager"
     )
 
-    val microserviceConfigs: SettingKey[Map[String, k8s.Data]] = settingKey(
-      "config data, if any data is provided, will be used in a single `ConfigMap` named like other resources, defaults to Map.empty"
+    val microserviceImagePullSecrets: SettingKey[Seq[String]] = settingKey(
+      "image pull secrets"
     )
-    val microserviceSecrets: SettingKey[Map[String, k8s.Data]] = settingKey(
-      "secret data, if any data is provided, will be used in a single `Secret` named like other resources, defaults to Map.empty"
+    val microserviceImagePullPolicy: SettingKey[String] = settingKey(
+      "container image pull policy"
     )
-    val microserviceVariables: SettingKey[Map[String, String]] = settingKey(
-      "environment variables"
+    val microserviceStartupProbe: SettingKey[Probe] = settingKey(
+      "container startup probe"
+    )
+    val microserviceReadinessProbe: SettingKey[Probe] = settingKey(
+      "container readiness probe"
+    )
+    val microserviceLivenessProbe: SettingKey[Probe] = settingKey(
+      "container liveness probe"
+    )
+    val microserviceResources: SettingKey[ResourceRequirements] = settingKey(
+      "container resource requirements"
+    )
+    val microserviceArgs: SettingKey[Seq[String]] = settingKey("container args")
+    val microserviceWorkingDir: SettingKey[String] = settingKey(
+      "container working dir"
     )
 
     val microserviceEnvironments: SettingKey[Seq[EnvironmentDefinition]] =
@@ -66,7 +78,7 @@ object K8SMicroservicePlugin extends AutoPlugin {
 
   override val projectSettings = Seq(
     microserviceName := name.value,
-    microserviceNamespace := "default",
+    microserviceNamespace := None,
     microserviceEnvironments := Nil,
     microserviceServices := Nil,
     microserviceDefinition := MicroserviceDefinition(
@@ -74,6 +86,14 @@ object K8SMicroservicePlugin extends AutoPlugin {
       version = version.value,
       namespace = microserviceNamespace.value,
       image = microserviceImage.value,
+      imagePullSecrets = (microserviceImagePullSecrets ?? Nil).value,
+      imagePullPolicy = (microserviceImagePullPolicy ?).value,
+      startupProbe = (microserviceStartupProbe ?).value,
+      readinessProbe = (microserviceReadinessProbe ?).value,
+      livenessProbe = (microserviceLivenessProbe ?).value,
+      resources = (microserviceResources ?).value,
+      args = (microserviceArgs ?).value,
+      workingDir = (microserviceWorkingDir ?).value,
       environments = microserviceEnvironments.value,
       services = microserviceServices.value
     ),
