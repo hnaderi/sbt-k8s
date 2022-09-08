@@ -112,10 +112,10 @@
       </span><span class="identifier">requests</span><span> = </span><span class="type-name">Map</span><span>(</span><span class="string-literal">&quot;cpu&quot;</span><span> -&gt; </span><span class="type-name">Quantity</span><span>(</span><span class="string-literal">&quot;250m&quot;</span><span>), </span><span class="string-literal">&quot;memory&quot;</span><span> -&gt; </span><span class="type-name">Quantity</span><span>(</span><span class="string-literal">&quot;128Mi&quot;</span><span>))
     ),
     </span><span class="identifier">microserviceEnvironments</span><span> := </span><span class="type-name">Seq</span><span>(
-      </span><span class="type-name">Variable</span><span>(</span><span class="string-literal">&quot;SERVICE_NAME&quot;</span><span>, </span><span class="identifier">service</span><span>),
-      </span><span class="type-name">ExternalSecretVariable</span><span>(</span><span class="string-literal">&quot;POSTGRES_PASSWORD&quot;</span><span>, </span><span class="string-literal">&quot;username&quot;</span><span>, </span><span class="string-literal">&quot;pg-credentials&quot;</span><span>),
+      </span><span class="type-name">Variable</span><span>(</span><span class="string-literal">&quot;SERVICE_NAME&quot;</span><span>, </span><span class="string-literal">&quot;example&quot;</span><span>),
+      </span><span class="type-name">ExternalSecretVariable</span><span>(</span><span class="string-literal">&quot;POSTGRES_PASSWORD&quot;</span><span>, </span><span class="string-literal">&quot;password&quot;</span><span>, </span><span class="string-literal">&quot;pg-credentials&quot;</span><span>),
       </span><span class="type-name">ConfigFile</span><span>(</span><span class="string-literal">&quot;service-config&quot;</span><span>, </span><span class="type-name">Map</span><span>(
-          </span><span class="string-literal">&quot;app.conf&quot;</span><span> -&gt; </span><span class="identifier">file</span><span>(</span><span class="string-literal">s&quot;deployments/configs/</span><span class="substitution">$service</span><span class="string-literal">.conf&quot;</span><span>),
+          </span><span class="string-literal">&quot;app.conf&quot;</span><span> -&gt; </span><span class="identifier">file</span><span>(</span><span class="string-literal">s&quot;deployments/configs/service.conf&quot;</span><span>),
           </span><span class="string-literal">&quot;base.conf&quot;</span><span> -&gt; </span><span class="identifier">file</span><span>(</span><span class="string-literal">s&quot;deployments/configs/base.conf&quot;</span><span>)
         ),
         </span><span class="string-literal">&quot;/mnt/config&quot;</span><span>
