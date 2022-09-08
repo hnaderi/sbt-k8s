@@ -23,8 +23,11 @@ ThisBuild / githubWorkflowBuild ~= {
     case other => other
   }
 }
-ThisBuild / resolvers +=
-  "Sonatype OSS Snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots"
+
+ThisBuild / resolvers ++= Seq(
+  "Sonatype OSS Snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots",
+  "Sonatype OSS" at "https://s01.oss.sonatype.org/content/repositories/releases"
+)
 
 lazy val root =
   project
@@ -32,7 +35,7 @@ lazy val root =
     .aggregate(core, manifest, cookbook, docs)
     .enablePlugins(AutomateHeaderPlugin, NoPublishPlugin)
 
-val scalaK8sVersion = "0.2-972225d-SNAPSHOT"
+val scalaK8sVersion = "0.2.0"
 val munitVersion = "0.7.29"
 
 lazy val manifest = project
