@@ -16,6 +16,7 @@ ThisBuild / tlSonatypeUseLegacyHost := false
 ThisBuild / tlSitePublishBranch := Some("main")
 ThisBuild / scalaVersion := scala212
 ThisBuild / githubWorkflowBuildSbtStepPreamble := Nil
+ThisBuild / tlCiMimaBinaryIssueCheck := false
 ThisBuild / githubWorkflowBuild ~= {
   _.map {
     case Sbt(commands, id, Some("Test"), cond, env, params) =>
