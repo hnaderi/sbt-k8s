@@ -18,16 +18,24 @@ package dev.hnaderi.sbtk8s
 
 import dev.hnaderi.k8s._
 import io.k8s.api.apps.v1.Deployment
+import io.k8s.api.core.v1.Probe
+import io.k8s.api.core.v1.ResourceRequirements
 import io.k8s.api.core.v1.Service
 import io.k8s.api.networking.v1.Ingress
+import io.k8s.apimachinery.pkg.api.resource.Quantity
 import io.k8s.apimachinery.pkg.apis.meta.v1.LabelSelector
 import io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta
-import munit.FunSuite
+import io.k8s.apimachinery.pkg.util.intstr.IntOrString
 import munit.Location
+import munit.ScalaCheckSuite
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
+import org.scalacheck.Prop.forAll
 
+import MicroserviceDefinitionSuite._
 import implicits._
 
-class MicroserviceDefinitionSuite extends FunSuite {
+class MicroserviceDefinitionSuite extends ScalaCheckSuite {
   type Manifest = Seq[KObject]
 
   val baseDef = MicroserviceDefinition(
@@ -36,28 +44,29 @@ class MicroserviceDefinitionSuite extends FunSuite {
     image = "example:latest"
   )
 
-  test("Simple Deployment") {
-    val defs = baseDef
-    val manifest = defs.build
+  property("Simple Deployment") {
+    forAll(microservices) { defs =>
+      val manifest = defs.build
 
-    assertEquals(manifest.size, 1)
-    val deployment = getDeployment(manifest)
-    assertCommonMeta(deployment.metadata, defs)
-    val spec = assertExists(deployment.spec)
-    import spec.template
-    assertCommonMeta(template.metadata, defs)
-    assertEquals(
-      spec.selector,
-      LabelSelector(matchLabels = Map(Labels.name("example")))
-    )
-    val podSpec = assertExists(template.spec)
-    assertEquals(podSpec.containers.size, 1)
-    val container = assertExists(podSpec.containers.headOption)
-    assertEquals(container.image, Some(defs.image))
-    assertEquals(container.name, defs.name)
-    assertEquals(container.ports, None)
-    assertEquals(container.env, None)
-    assertEquals(container.volumeMounts, None)
+      assertEquals(manifest.size, 1)
+      val deployment = getDeployment(manifest)
+      assertCommonMeta(deployment.metadata, defs)
+      val spec = assertExists(deployment.spec)
+      import spec.template
+      assertCommonMeta(template.metadata, defs)
+      assertEquals(
+        spec.selector,
+        LabelSelector(matchLabels = Map(Labels.name(defs.name)))
+      )
+      val podSpec = assertExists(template.spec)
+      assertEquals(podSpec.containers.size, 1)
+      val container = assertExists(podSpec.containers.headOption)
+      assertEquals(container.image, Some(defs.image))
+      assertEquals(container.name, defs.name)
+      assertEquals(container.ports, None)
+      assertEquals(container.env, None)
+      assertEquals(container.volumeMounts, None)
+    }
   }
 
   test("Must not create service when no service is defined") {
@@ -128,4 +137,44 @@ class MicroserviceDefinitionSuite extends FunSuite {
     assertEquals(h, None, "There is an ingress!")
 
   }
+}
+
+object MicroserviceDefinitionSuite {
+  private implicit val arbData: Arbitrary[Data] = Arbitrary(
+    Gen.alphaStr.map(Data(_))
+  )
+  private implicit val intOrString: Arbitrary[IntOrString] = Arbitrary(
+    Gen.oneOf(
+      Gen.numStr.map(IntOrString(_)),
+      Gen.posNum[Int].map(IntOrString(_))
+    )
+  )
+  private implicit val grpcAction = Arbitrary(
+    Gen.resultOf(io.k8s.api.core.v1.GRPCAction)
+  )
+  private implicit val tcpSocketAction = Arbitrary(
+    Gen.resultOf(io.k8s.api.core.v1.TCPSocketAction)
+  )
+  private implicit val httpHeader = Arbitrary(
+    Gen.resultOf(io.k8s.api.core.v1.HTTPHeader)
+  )
+  private implicit val httpGetAction = Arbitrary(
+    Gen.resultOf(io.k8s.api.core.v1.HTTPGetAction)
+  )
+  private implicit val execAction = Arbitrary(
+    Gen.resultOf(io.k8s.api.core.v1.ExecAction)
+  )
+  private implicit val probes = Arbitrary(Gen.resultOf(Probe))
+  private implicit val quantity = Arbitrary(Gen.resultOf(Quantity))
+  private implicit val resourceRequirements = Arbitrary(
+    Gen.resultOf(ResourceRequirements)
+  )
+
+  private implicit val dummyEnvironment: Arbitrary[Seq[Environment]] =
+    Arbitrary(Gen.const(Nil))
+  private implicit val dummyServices: Arbitrary[Seq[ServiceBuilder]] =
+    Arbitrary(Gen.const(Nil))
+
+  private val microservices = Gen.resultOf(MicroserviceDefinition)
+
 }
