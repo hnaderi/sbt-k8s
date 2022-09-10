@@ -29,11 +29,6 @@ object NativePackagerDockerIntegrationPlugin extends AutoPlugin {
   import K8SMicroservicePlugin.autoImport.microserviceImage
 
   override def projectSettings: Seq[Setting[_]] = Seq(
-    microserviceImage := {
-      val reg =
-        (Docker / dockerRepository).value.map(s => s"$s/").getOrElse("")
-      val name = (Docker / dockerAlias).value
-      s"$reg$name"
-    }
+    microserviceImage := (Docker / dockerAlias).value.toString()
   )
 }
