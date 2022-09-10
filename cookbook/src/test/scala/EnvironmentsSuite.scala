@@ -116,7 +116,7 @@ class EnvironmentsSuite extends ScalaCheckSuite {
           valueFrom = EnvVarSource(secretKeyRef =
             SecretKeySelector(
               key = env.key,
-              name = env.name,
+              name = env.target,
               optional = env.optional
             )
           )
@@ -139,7 +139,7 @@ class EnvironmentsSuite extends ScalaCheckSuite {
           valueFrom = EnvVarSource(configMapKeyRef =
             ConfigMapKeySelector(
               key = env.key,
-              name = env.name,
+              name = env.target,
               optional = env.optional
             )
           )

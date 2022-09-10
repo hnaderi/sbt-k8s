@@ -191,7 +191,7 @@ object Environment {
       EnvVar(
         name = name,
         valueFrom = EnvVarSource(configMapKeyRef =
-          ConfigMapKeySelector(key = key, name = name, optional = optional)
+          ConfigMapKeySelector(key = key, name = target, optional = optional)
         )
       )
     )
@@ -207,7 +207,7 @@ object Environment {
       EnvVar(
         name = name,
         valueFrom = EnvVarSource(secretKeyRef =
-          SecretKeySelector(key = key, name = name, optional = optional)
+          SecretKeySelector(key = key, name = target, optional = optional)
         )
       )
     )
