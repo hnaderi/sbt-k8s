@@ -22,7 +22,7 @@ import sbt.AutoPlugin
 import sbt.Keys._
 import sbt._
 
-object K8SMicroservicePlugin extends AutoPlugin {
+object K8sMicroservicePlugin extends AutoPlugin {
   object autoImport {
     val microserviceName: SettingKey[String] = settingKey(
       "name used as deployment, config, secret, and all other resource names. defaults to [project / name]"

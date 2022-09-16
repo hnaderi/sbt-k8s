@@ -1,7 +1,7 @@
 import org.typelevel.sbt.gha.WorkflowStep.Sbt
 import org.typelevel.sbt.TypelevelCiReleasePlugin
 
-ThisBuild / tlBaseVersion := "0.0"
+ThisBuild / tlBaseVersion := "0.1"
 
 ThisBuild / organization := "dev.hnaderi"
 ThisBuild / organizationName := "Hossein Naderi"
@@ -36,7 +36,7 @@ lazy val root =
     .aggregate(core, manifest, cookbook, docs)
     .enablePlugins(AutomateHeaderPlugin, NoPublishPlugin)
 
-val scalaK8sVersion = "0.2.0"
+val scalaK8sVersion = "0.3.0"
 val munitVersion = "0.7.29"
 
 lazy val manifest = project
