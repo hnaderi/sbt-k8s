@@ -47,7 +47,7 @@ lazy val service = project
     ),
     microserviceServices := Seq(ServiceDefinition("ws", 8080, 80))
   )
-  .enablePlugins(DockerPlugin, K8SMicroservicePlugin)
+  .enablePlugins(DockerPlugin, K8sMicroservicePlugin)
 ```
 
 #### If you don't want to use native packager (microserviceImage is required)
@@ -56,7 +56,7 @@ lazy val service = project
   .settings(
     microserviceImage := "your.registry/your-image:version"
   )
-  .enablePlugins(K8SMicroservicePlugin)
+  .enablePlugins(K8sMicroservicePlugin)
 ```
 
 #### If you want to create completely custom manifests (you are on your own, create any kubernetes object you want)
