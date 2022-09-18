@@ -1,7 +1,7 @@
 import org.typelevel.sbt.gha.WorkflowStep.Sbt
 import org.typelevel.sbt.TypelevelCiReleasePlugin
 
-ThisBuild / tlBaseVersion := "0.0"
+ThisBuild / tlBaseVersion := "0.1"
 
 ThisBuild / organization := "dev.hnaderi"
 ThisBuild / organizationName := "Hossein Naderi"
@@ -11,7 +11,7 @@ ThisBuild / developers := List(
   tlGitHubDev("hnaderi", "Hossein Naderi")
 )
 
-val scala212 = "2.12.16"
+val scala212 = "2.12.17"
 
 ThisBuild / tlSonatypeUseLegacyHost := false
 ThisBuild / tlSitePublishBranch := Some("main")
@@ -36,7 +36,7 @@ lazy val root =
     .aggregate(core, manifest, cookbook, docs)
     .enablePlugins(AutomateHeaderPlugin, NoPublishPlugin)
 
-val scalaK8sVersion = "0.2.0"
+val scalaK8sVersion = "0.3.0"
 val munitVersion = "0.7.29"
 
 lazy val manifest = project
@@ -54,7 +54,8 @@ lazy val cookbook = project
     pluginCrossBuild / sbtVersion := "1.2.8", // set minimum sbt version
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit" % munitVersion % Test,
-      "org.scalameta" %% "munit-scalacheck" % munitVersion % Test
+      "org.scalameta" %% "munit-scalacheck" % munitVersion % Test,
+      "dev.hnaderi" %% "scala-k8s-scalacheck" % scalaK8sVersion % Test
     )
   )
   .dependsOn(manifest)
