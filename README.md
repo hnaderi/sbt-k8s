@@ -7,7 +7,7 @@
 
 <a href="https://typelevel.org/cats/"><img src="https://typelevel.org/cats/img/cats-badge.svg" height="40px" align="right" alt="Cats friendly" /></a>
 
-![Kubernetes version](https://img.shields.io/badge/Kubernetes-v1.26.1-blue?style=flat-square&logo=kubernetes&logoColor=white)
+![Kubernetes version](https://img.shields.io/badge/Kubernetes-v1.26.3-blue?style=flat-square&logo=kubernetes&logoColor=white)
 [![sbt-k8s Scala version support](https://index.scala-lang.org/hnaderi/sbt-k8s/sbt-k8s/latest-by-scala-version.svg?style=flat-square)](https://index.scala-lang.org/hnaderi/sbt-k8s/sbt-k8s) 
 <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/hnaderi/sbt-k8s/ci.yml?style=flat-square">
 <img alt="GitHub" src="https://img.shields.io/github/license/hnaderi/sbt-k8s?style=flat-square">
