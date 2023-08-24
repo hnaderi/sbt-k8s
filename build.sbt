@@ -78,10 +78,4 @@ lazy val core = project
 
 lazy val docs = project
   .in(file("site"))
-  .enablePlugins(TypelevelSitePlugin)
-  .settings(
-    tlSiteRelatedProjects := Seq(
-      "scala k8s" -> url("https://github.com/hnaderi/scala-k8s"),
-      "sbt" -> url("https://github.com/sbt/sbt")
-    )
-  )
+  .enablePlugins(WebsitePlugin)
