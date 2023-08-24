@@ -17,13 +17,20 @@ ThisBuild / tlSonatypeUseLegacyHost := false
 ThisBuild / tlSitePublishBranch := Some("main")
 ThisBuild / scalaVersion := scala212
 ThisBuild / githubWorkflowBuildSbtStepPreamble := Nil
-ThisBuild / githubWorkflowBuild ~= {
-  _.map {
-    case Sbt(commands, id, Some("Test"), cond, env, params) =>
-      Sbt(List("+test"), name = Some("Test"))
-    case other => other
-  }
-}
+// This job is used as a sign that all build jobs have been successful and is used by mergify
+ThisBuild / githubWorkflowAddedJobs += WorkflowJob(
+  id = "post-build",
+  name = "post build",
+  needs = List("build"),
+  steps = List(
+    WorkflowStep.Run(
+      commands = List("echo success!"),
+      name = Some("post build")
+    )
+  ),
+  scalas = Nil,
+  javas = Nil
+)
 
 ThisBuild / resolvers ++= Seq(
   "Sonatype OSS Snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots",

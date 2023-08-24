@@ -81,7 +81,7 @@ class MicroserviceDefinitionSuite extends ScalaCheckSuite {
     assertNoIngress(manifest)
     val srv = getService(manifest)
     assertCommonMeta(srv.metadata, defs)
-    val spec = assertExists(srv.spec)
+    assertExists(srv.spec)
   }
 
   private def assertExists[T](opt: Option[T])(implicit loc: Location) = {

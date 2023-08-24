@@ -2,6 +2,8 @@ pull_request_rules:
   - name: Automatic merge for dependency updates
     conditions:
       - "head~=update/"
+      - "status-success=post build (ubuntu-latest)"
+
       - or:
         - "author=hnaderi"
         - "author=scala-steward"
