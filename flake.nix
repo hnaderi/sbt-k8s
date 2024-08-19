@@ -10,10 +10,9 @@
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ typelevel-nix.overlay ];
+          overlays = [ typelevel-nix.overlays.default ];
         };
-      in
-      {
+      in {
         devShell = pkgs.devshell.mkShell {
           imports = [ typelevel-nix.typelevelShell ];
           name = "sbt-k8s-shell";
@@ -22,6 +21,5 @@
             nodejs.enable = true;
           };
         };
-      }
-    );
+      });
 }
