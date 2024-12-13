@@ -43,7 +43,7 @@ lazy val root =
     .aggregate(core, manifest, cookbook, docs)
     .enablePlugins(AutomateHeaderPlugin, NoPublishPlugin)
 
-val scalaK8sVersion = "0.20.2"
+val scalaK8sVersion = "0.20.3"
 val munitVersion = "1.0.0"
 
 lazy val manifest = project
