@@ -13,7 +13,6 @@ ThisBuild / developers := List(
 
 val scala212 = "2.12.20"
 
-ThisBuild / sonatypeCredentialHost := xerial.sbt.Sonatype.sonatypeLegacy
 ThisBuild / tlSitePublishBranch := Some("main")
 ThisBuild / scalaVersion := scala212
 ThisBuild / githubWorkflowBuildSbtStepPreamble := Nil
