@@ -50,6 +50,7 @@ lazy val manifest = project
   .settings(
     name := "sbt-k8s-manifests",
     pluginCrossBuild / sbtVersion := "1.2.8", // set minimum sbt version
+    sbtPluginPublishLegacyMavenStyle := false,
     libraryDependencies += "dev.hnaderi" %% "scala-k8s-manifests" % scalaK8sVersion
   )
 
@@ -58,6 +59,7 @@ lazy val cookbook = project
   .settings(
     name := "sbt-k8s-cookbook",
     pluginCrossBuild / sbtVersion := "1.2.8", // set minimum sbt version
+    sbtPluginPublishLegacyMavenStyle := false,
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit" % munitVersion % Test,
       "org.scalameta" %% "munit-scalacheck" % munitVersion % Test,
@@ -71,6 +73,7 @@ lazy val core = project
   .settings(
     name := "sbt-k8s",
     pluginCrossBuild / sbtVersion := "1.2.8", // set minimum sbt version
+    sbtPluginPublishLegacyMavenStyle := false,
     mimaReportBinaryIssues := {}
   )
   .dependsOn(manifest, cookbook)
