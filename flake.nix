@@ -17,7 +17,7 @@
           imports = [ typelevel-nix.typelevelShell ];
           name = "sbt-k8s-shell";
           typelevelShell = {
-            jdk.package = pkgs.jdk8;
+            jdk.package = pkgs.jdk17;
             nodejs.enable = true;
           };
         };
