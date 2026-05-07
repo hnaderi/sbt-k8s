@@ -9,4 +9,4 @@ pull_request_rules:
         - "author=scala-steward"
     actions:
       merge:
-        method: merge
+        method: squash
