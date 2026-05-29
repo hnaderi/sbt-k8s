@@ -43,7 +43,7 @@ lazy val root =
     .enablePlugins(AutomateHeaderPlugin, NoPublishPlugin)
 
 val scalaK8sVersion = "0.30.0"
-val munitVersion = "1.3.0"
+val munitVersion = "1.3.1"
 
 lazy val manifest = project
   .enablePlugins(AutomateHeaderPlugin, SbtPlugin)
